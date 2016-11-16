@@ -6,15 +6,16 @@
 package tubes2ai;
 
 import weka.classifiers.Classifier;
-import weka.core.Capabilities;
-import weka.core.Instance;
-import weka.core.Instances;
+import weka.core.*;
+
+import java.util.Enumeration;
 
 /**
  *
  * @author i
  */
-public class AIJKFFNN implements Classifier {
+public class AIJKFFNN implements Classifier, OptionHandler {
+
     @Override
     public void buildClassifier(Instances instances) throws Exception {
 
@@ -33,5 +34,20 @@ public class AIJKFFNN implements Classifier {
     @Override
     public Capabilities getCapabilities() {
         return null;
+    }
+
+    @Override
+    public Enumeration<Option> listOptions() {
+        return null;
+    }
+
+    @Override
+    public void setOptions(String[] strings) throws Exception {
+
+    }
+
+    @Override
+    public String[] getOptions() {
+        return new String[0];
     }
 }

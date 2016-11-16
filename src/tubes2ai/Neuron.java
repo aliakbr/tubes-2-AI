@@ -18,19 +18,33 @@ class Neuron {
         }
 
         outputValue = sigmoid(x);
-
     }
 
     void updateWeights(double learningRate) {
-        /* */
+        for (Neuron neuron : inputs.keySet()) {
+            double prevWeight = this.getWeight(neuron);
+            double newWeight = prevWeight + error * neuron.getOutput();
+
+            inputs.put(neuron, newWeight);
+        }
     }
 
     void calculateError() {
+        double errsum = 0;
+        for (Neuron output : outputs) {
+            errsum += output.getWeight(this) * output.getError();
+        }
+
+        error = errsum * (1 - outputValue) * outputValue;
 
     }
 
-    void setError(double e) {
-        error = e;
+    public double getError() {
+        return error;
+    }
+
+    void errorFromTarget(double target) {
+        error = outputValue * (1 - outputValue) * (target - outputValue);
     }
 
     void setOutput(double x) {
