@@ -22,7 +22,7 @@ class Neuron {
     }
 
     void updateWeights(double learningRate) {
-
+        /* */
     }
 
     void calculateError() {
