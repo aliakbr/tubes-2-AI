@@ -5,7 +5,7 @@
  */
 package tubes2ai;
 
-import weka.associations.NominalItem;
+import weka.classifiers.CheckClassifier;
 import weka.classifiers.Classifier;
 import weka.core.*;
 import weka.core.Capabilities.Capability;
@@ -26,7 +26,7 @@ public class AIJKFFNN implements Classifier, OptionHandler, CapabilitiesHandler,
 
     @Override
     public void buildClassifier(Instances instances) throws Exception {
-
+        getCapabilities().testWithFail(instances);
     }
 
     @Override
@@ -59,13 +59,41 @@ public class AIJKFFNN implements Classifier, OptionHandler, CapabilitiesHandler,
 
     @Override
     public void setOptions(String[] strings) throws Exception {
-        hiddenLayerCount = Integer.parseInt(Utils.getOption("L", strings));
-        hiddenLayerNeuronCount = Integer.parseInt(Utils.getOption("N", strings));
+        String hlc = Utils.getOption("L", strings);
+        String hlnc = Utils.getOption("N", strings);
+        if (hlc.length() > 0) {
+            hiddenLayerCount = Integer.parseInt(hlc);
+        }
+
+        if (hlnc.length() > 0) {
+            hiddenLayerNeuronCount = Integer.parseInt(hlnc);
+        }
+
     }
 
     @Override
     public String[] getOptions() {
         return new String[]{"-L", String.valueOf(hiddenLayerCount), "-N", String.valueOf(hiddenLayerNeuronCount)};
+    }
+
+    public static void main(String[] args) {
+        CheckClassifier checker = new CheckClassifier();
+        try {
+            checker.setOptions(Utils.splitOptions("-W AIJKFFNN"));
+        } catch (Exception e) {
+            throw new RuntimeException(e);
+        }
+
+        checker.doTests();
+
+        CheckOptionHandler optionChecker = new CheckOptionHandler();
+        try {
+            optionChecker.setOptions(Utils.splitOptions("-W AIJKFFNN"));
+        } catch (Exception e) {
+            throw new RuntimeException(e);
+        }
+
+        optionChecker.doTests();
     }
 
     private int hiddenLayerCount;
