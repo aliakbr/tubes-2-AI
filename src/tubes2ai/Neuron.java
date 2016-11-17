@@ -43,10 +43,12 @@ class Neuron {
         return error;
     }
 
+    /* Hanya untuk output */
     void errorFromTarget(double target) {
         error = outputValue * (1 - outputValue) * (target - outputValue);
     }
 
+    /* Hanya untuk input */
     void setOutput(double x) {
         outputValue = x;
     }
