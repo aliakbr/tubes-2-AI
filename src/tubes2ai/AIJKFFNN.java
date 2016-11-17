@@ -5,12 +5,15 @@
  */
 package tubes2ai;
 
+import weka.classifiers.CheckClassifier;
 import weka.classifiers.Classifier;
 import weka.core.*;
+import weka.core.Capabilities.Capability;
 
 import java.util.Enumeration;
 import java.lang.*;
 import java.util.*;
+import java.io.Serializable;
 
 /**
  *
@@ -23,8 +26,14 @@ public class AIJKFFNN implements Classifier, OptionHandler {
     private int nHiddenLayer, nHiddenNeuron;
     private double learningRate;
 
+    public AIJKFFNN() {
+        hiddenLayerCount = 0;
+        hiddenLayerNeuronCount = 0;
+    }
+
     @Override
     public void buildClassifier(Instances instances) throws Exception {
+        getCapabilities().testWithFail(instances);
         int nInputNeuron, nOutputNeuron;
 
         /* Inisialisasi tiap layer */
@@ -134,21 +143,61 @@ public class AIJKFFNN implements Classifier, OptionHandler {
 
     @Override
     public Capabilities getCapabilities() {
-        return null;
+        Capabilities c = new Capabilities(this);
+        c.enable(Capability.NUMERIC_ATTRIBUTES);
+        c.enable(Capability.NOMINAL_CLASS);
+        return c;
     }
 
     @Override
     public Enumeration<Option> listOptions() {
-        return null;
+        Vector<Option> options = new Vector<>();
+
+        options.add(new Option("Amount of hidden layers", "L", 1, "-L <amount>"));
+        options.add(new Option("Amount of neurons in hidden layer", "N", 1, "-N <amount>"));
+
+        return options.elements();
     }
 
     @Override
     public void setOptions(String[] strings) throws Exception {
+        String hlc = Utils.getOption("L", strings);
+        String hlnc = Utils.getOption("N", strings);
+        if (hlc.length() > 0) {
+            hiddenLayerCount = Integer.parseInt(hlc);
+        }
+
+        if (hlnc.length() > 0) {
+            hiddenLayerNeuronCount = Integer.parseInt(hlnc);
+        }
 
     }
 
     @Override
     public String[] getOptions() {
-        return new String[0];
+        return new String[]{"-L", String.valueOf(hiddenLayerCount), "-N", String.valueOf(hiddenLayerNeuronCount)};
     }
+
+    public static void main(String[] args) {
+        CheckClassifier checker = new CheckClassifier();
+        try {
+            checker.setOptions(Utils.splitOptions("-W AIJKFFNN"));
+        } catch (Exception e) {
+            throw new RuntimeException(e);
+        }
+
+        checker.doTests();
+
+        CheckOptionHandler optionChecker = new CheckOptionHandler();
+        try {
+            optionChecker.setOptions(Utils.splitOptions("-W AIJKFFNN"));
+        } catch (Exception e) {
+            throw new RuntimeException(e);
+        }
+
+        optionChecker.doTests();
+    }
+
+    private int hiddenLayerCount;
+    private int hiddenLayerNeuronCount;
 }
