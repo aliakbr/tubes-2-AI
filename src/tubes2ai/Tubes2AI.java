@@ -23,15 +23,18 @@ public class Tubes2AI {
         System.out.println("tes");
         
         
-        DataSource source = new DataSource("iris.arff");
+        DataSource source = new DataSource("weather.nominal.arff");
         Instances dataTrain = source.getDataSet();
         if (dataTrain.classIndex() == -1)
            dataTrain.setClassIndex(dataTrain.numAttributes() -1);
         ArffSaver saver = new ArffSaver();
-
+        
+        dataTrain.setClassIndex(dataTrain.numAttributes()-1);
+        
         AIJKNaiveBayes NB = new AIJKNaiveBayes();
+        NB.buildClassifier(dataTrain);
+        
 //        Instances
 //        NB.buildClassifier();
     }
-    
 }

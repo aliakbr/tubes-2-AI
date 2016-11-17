@@ -20,33 +20,12 @@ import java.util.Map;
  */
 public class AIJKNaiveBayes implements Classifier {
 
-    private int[][][] attrib_sum;
+    private int[][][] freq;
     int n_attrib;
     int index_class;
-//    Map<String, Double>[] valToIndex;
-    /* ngelist ada berapa atribut
-    n_attrib = 
-    n_class;
-    int[][][] = new int[x][][];
+    private double[][][] prob;
     
-    for each attrrib{
-        ada berapa nilai
-        buat fungsi hash
-        attrib[i] = new int[j][n_class];
-    }
-    
-    
-    for each instance {
-        kelas = scan kelas;
-        for each attrib {
-            scan value;
-            int[attrib][value][kelas]++; 
-        }
-    }
-    
-    
-    private in
-    */
+
     
     @Override
     public void buildClassifier(Instances i) throws Exception {
@@ -60,31 +39,52 @@ public class AIJKNaiveBayes implements Classifier {
         //pertama cari ada berapa value di kelas
         int n_value_class = i.attribute(index_class).numValues();
         
-        attrib_sum = new int[n_attrib][][];
+        freq = new int[n_attrib][][];
+        prob = new double[n_attrib][][];
         
         int a = 0;
         while(a < n_attrib){
             int n_val = i.attribute(a).numValues();
-            if(a != index_class)
-                attrib_sum[a] = new int[n_val][n_value_class];
-            else
-                attrib_sum[a] = new int[1][n_value_class];
+            if(a != index_class){
+                freq[a] = new int[n_val][n_value_class];
+                prob[a] = new double[n_val][n_value_class];
+            }else{
+                freq[a] = new int[1][n_value_class];
+                prob[a] = new double[1][n_value_class];
+            }
+            a++;
         }
 
+        System.out.println("beres buat matriks");
         //inisialisasi matriks sama nilai 0
-        a = 0;
+        a = 0; 
         int b=0;
         int c=0;
-        while(a < n_attrib){
+        while(a < n_attrib){ //outlook dkk
             b=0;
             int n_val = i.attribute(a).numValues();
+            System.out.println("row "+a);
             while(b < n_val){
                 c=0;
-                while(c < index_class){
-                    attrib_sum[a][b][c] = 0;
+                System.out.println("row1 "+b);
+                if(a==index_class){
+                        System.out.println("row2 "+c);
+                        freq[a][0][b] = 0;
                 }
+                else {
+                    while(c < n_value_class){
+                        System.out.println("row2 "+c);
+                        freq[a][b][c] = 0;
+                        c++;
+                    }
+                }
+                b++;
             }
+            a++;
         }
+
+
+        System.out.println("beres inisialisasi 0");
         
         a = 0;
         b = 0;
@@ -97,13 +97,44 @@ public class AIJKNaiveBayes implements Classifier {
             while(b< n_attrib){
                 val = (int) inst.value(b);
                 if(b==index_class){
-                    attrib_sum[b][0][class_val]++;                
+                    freq[b][0][class_val]++;                
                 }
                 else {
-                    attrib_sum[b][val][class_val]++;
+                    freq[b][val][class_val]++;
                 }
+                b++;
             }
+            a++;
         }       
+        System.out.println("beres frekuensi!!!!");
+
+        a=0;
+        while(a < n_attrib){
+            b = 0;
+            int n_val = i.attribute(a).numValues();
+            System.out.println("row "+a);
+            while(b< n_val){
+                System.out.println("row1 "+b);
+                if(a!=index_class){
+                    c = 0;
+                    while(c < n_value_class){
+                        System.out.println("freq "+freq[a][b][c]);
+                        System.out.println("freq_index "+freq[index_class][0][c]);
+                        prob[a][b][c] = (double) (freq[a][b][c]) / (double) (freq[index_class][0][c]);
+                        System.out.println("prob ["+a+"]["+b+"]["+c+"] "+ prob[a][b][c]);
+                        c++;
+                    }
+                }
+                else {
+                    prob[a][0][b] = (double) freq[a][0][b] / i.numInstances();
+                    System.out.println("prob ["+a+"][0]["+b+"] "+ prob[a][0][b]);
+                }
+                b++;
+            }
+            a++;
+        }        
+        System.out.println("beres prob!!!!");
+
     }
 
     @Override
