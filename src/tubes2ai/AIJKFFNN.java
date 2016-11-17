@@ -19,7 +19,7 @@ import java.io.Serializable;
  *
  * @author i
  */
-public class AIJKFFNN implements Classifier, OptionHandler {
+public class AIJKFFNN implements Classifier, OptionHandler, CapabilitiesHandler {
     private Vector<Neuron> layerInput;
     private Vector<Neuron> hiddenLayer;
     private Vector<Neuron> layerOutput;
