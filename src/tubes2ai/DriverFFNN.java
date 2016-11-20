@@ -1,5 +1,6 @@
 package tubes2ai;
 
+import weka.classifiers.Classifier;
 import weka.classifiers.Evaluation;
 import weka.core.Instances;
 import weka.core.Utils;
@@ -10,7 +11,7 @@ import weka.filters.unsupervised.attribute.Normalize;
 import weka.filters.unsupervised.attribute.Standardize;
 
 import java.io.IOException;
-import java.util.Random;
+import java.util.*;
 
 /**
  * Created by i on 2016-11-20.
@@ -19,18 +20,26 @@ public class DriverFFNN {
     public static void main(String[] args) {
         ConverterUtils.DataSource source;
 
-        System.out.println("Press enter to start...");
-        try {
-            System.in.read();
-        } catch (IOException e) {
-            throw new RuntimeException(e);
+        List<String> argsList = Arrays.asList(args);
+
+        boolean waitForInput = argsList.indexOf("-w") != -1;
+        boolean crossValidate = argsList.indexOf("-c") != -1;
+        String dataFile = argsList.get(argsList.size() - 1);
+
+        if (waitForInput) {
+            System.out.println("Press enter to start...");
+            try {
+                System.in.read();
+            } catch (IOException e) {
+                throw new RuntimeException(e);
+            }
+            System.out.println("Starting...");
         }
-        System.out.println("Starting...");
 
         try {
             AIJKFFNN classifier = new AIJKFFNN();
-            classifier.setOptions(Utils.splitOptions("-L 1 -N 30"));
-            source = new ConverterUtils.DataSource("data/Team.arff");
+            classifier.setOptions(Utils.splitOptions("-I 1000 -L 1 -N 30"));
+            source = new ConverterUtils.DataSource(dataFile);
             Instances rawData = source.getDataSet();
             rawData.randomize(new Random(17));
             rawData.setClassIndex(rawData.numAttributes() - 1);
@@ -41,18 +50,30 @@ public class DriverFFNN {
             Instances data = Filter.useFilter(rawData, filter);
 
             Evaluation evaluation = new Evaluation(data);
-            evaluation.crossValidateModel(classifier, data, 10, new Random(1));
+
+            if (crossValidate) {
+                evaluation.crossValidateModel(classifier, data, 10, new Random(1));
+            } else {
+                classifier.buildClassifier(data);
+                evaluation.evaluateModel(classifier, data);
+            }
+
             System.out.println(evaluation.toSummaryString());
+            System.out.println(evaluation.toMatrixString());
+
+
         } catch (Exception e) {
             throw new RuntimeException(e);
         }
 
-        System.out.println("Finished, press enter to exit...");
-        try {
-            System.in.read();
-        } catch (IOException e) {
-            throw new RuntimeException(e);
+        if (waitForInput) {
+            System.out.println("Finished, press enter to exit...");
+            try {
+                System.in.read();
+            } catch (IOException e) {
+                throw new RuntimeException(e);
+            }
+            System.out.println("Exiting...");
         }
-        System.out.println("Exiting...");
     }
 }
