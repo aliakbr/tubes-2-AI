@@ -27,8 +27,8 @@ public class Tubes2AI {
         // TODO code application logic here
         System.out.println("tes");
 
-
-        DataSource source = new DataSource("weather.nominal.arff");
+        DriverNB.run();
+/*        DataSource source = new DataSource("weather.nominal.arff");
         Instances dataTrain = source.getDataSet();
         if (dataTrain.classIndex() == -1)
            dataTrain.setClassIndex(dataTrain.numAttributes() -1);
@@ -37,7 +37,7 @@ public class Tubes2AI {
         dataTrain.setClassIndex(dataTrain.numAttributes()-1);
 
         AIJKNaiveBayes NB = new AIJKNaiveBayes();
-        NB.buildClassifier(dataTrain);
+        NB.buildClassifier(dataTrain);*/
 
 //        Instances
 //        NB.buildClassifier();

@@ -10,47 +10,45 @@ import weka.core.Capabilities;
 import weka.core.Instance;
 import weka.core.Instances;
 import weka.core.Attribute;
-import java.util.Enumeration;
-import java.util.HashMap;
-import java.util.Map;
+import weka.core.CapabilitiesHandler;
 
 /**
  *
  * @author i
  */
-public class AIJKNaiveBayes implements Classifier {
+public class AIJKNaiveBayes implements Classifier, CapabilitiesHandler {
 
     private int[][][] freq;
-    int n_attrib;
-    int index_class;
+    int nAttribute;
+    int classIndex;
     private double[][][] prob;
-    int n_value_class;
+    int nClassValue;
 
     
     @Override
     public void buildClassifier(Instances i) throws Exception {
 //        throw new UnsupportedOperationException("Not supported yet."); //To change body of generated methods, choose Tools | Templates.
-        n_attrib = i.numAttributes();
-        index_class = i.classIndex();
+        nAttribute = i.numAttributes();
+        classIndex = i.classIndex();
         Instance inst;
         Attribute att;
         int n_instance = i.numInstances();
         //inisialisasi matrix 3x3;
         //pertama cari ada berapa value di kelas
-        n_value_class = i.attribute(index_class).numValues();
+        nClassValue = i.attribute(classIndex).numValues();
         
-        freq = new int[n_attrib][][];
-        prob = new double[n_attrib][][];
+        freq = new int[nAttribute][][];
+        prob = new double[nAttribute][][];
         
         int a = 0;
-        while(a < n_attrib){
-            int n_val = i.attribute(a).numValues();
-            if(a != index_class){
-                freq[a] = new int[n_val][n_value_class];
-                prob[a] = new double[n_val][n_value_class];
+        while(a < nAttribute){
+            int nValue = i.attribute(a).numValues();
+            if(a != classIndex){
+                freq[a] = new int[nValue][nClassValue];
+                prob[a] = new double[nValue][nClassValue];
             }else{
-                freq[a] = new int[1][n_value_class];
-                prob[a] = new double[1][n_value_class];
+                freq[a] = new int[1][nClassValue];
+                prob[a] = new double[1][nClassValue];
             }
             a++;
         }
@@ -58,21 +56,21 @@ public class AIJKNaiveBayes implements Classifier {
         System.out.println("beres buat matriks");
         //inisialisasi matriks sama nilai 0
         a = 0; 
-        int b=0;
-        int c=0;
-        while(a < n_attrib){ //outlook dkk
+        int b;
+        int c;
+        while(a < nAttribute){ //outlook dkk
             b=0;
-            int n_val = i.attribute(a).numValues();
+            int nValue = i.attribute(a).numValues();
             System.out.println("row "+a);
-            while(b < n_val){
+            while(b < nValue){
                 c=0;
                 System.out.println("row1 "+b);
-                if(a==index_class){
+                if(a==classIndex){
                         System.out.println("row2 "+c);
                         freq[a][0][b] = 0;
                 }
                 else {
-                    while(c < n_value_class){
+                    while(c < nClassValue){
                         System.out.println("row2 "+c);
                         freq[a][b][c] = 0;
                         c++;
@@ -86,20 +84,19 @@ public class AIJKNaiveBayes implements Classifier {
         System.out.println("beres inisialisasi 0");
         
         a = 0;
-        b = 0;
         int val;
-        int class_val;
+        int classValue;
         while(a < n_instance){
             inst = i.get(a);
             b = 0;
-            class_val = (int) inst.value(index_class);
-            while(b< n_attrib){
+            classValue = (int) inst.value(classIndex);
+            while(b< nAttribute){
                 val = (int) inst.value(b);
-                if(b==index_class){
-                    freq[b][0][class_val]++;                
+                if(b==classIndex){
+                    freq[b][0][classValue]++;                
                 }
                 else {
-                    freq[b][val][class_val]++;
+                    freq[b][val][classValue]++;
                 }
                 b++;
             }
@@ -108,18 +105,18 @@ public class AIJKNaiveBayes implements Classifier {
         System.out.println("beres frekuensi!!!!");
 
         a=0;
-        while(a < n_attrib){
+        while(a < nAttribute){
             b = 0;
-            int n_val = i.attribute(a).numValues();
+            int nValue = i.attribute(a).numValues();
             System.out.println("row "+a);
-            while(b< n_val){
+            while(b< nValue){
                 System.out.println("row1 "+b);
-                if(a!=index_class){
+                if(a!=classIndex){
                     c = 0;
-                    while(c < n_value_class){
+                    while(c < nClassValue){
                         System.out.println("freq "+freq[a][b][c]);
-                        System.out.println("freq_index "+freq[index_class][0][c]);
-                        prob[a][b][c] = (double) (freq[a][b][c]) / (double) (freq[index_class][0][c]);
+                        System.out.println("freq_index "+freq[classIndex][0][c]);
+                        prob[a][b][c] = (double) (freq[a][b][c]) / (double) (freq[classIndex][0][c]);
                         System.out.println("prob ["+a+"]["+b+"]["+c+"] "+ prob[a][b][c]);
                         c++;
                     }
@@ -139,43 +136,74 @@ public class AIJKNaiveBayes implements Classifier {
     @Override
     public double classifyInstance(Instance instnc) throws Exception {
         //throw new UnsupportedOperationException("Not supported yet."); //To change body of generated methods, choose Tools | Templates.
-        n_value_class = instnc.attribute(index_class).numValues();
-        String now = "";
-        double[][] prob_class = new double[n_value_class][];
+        double[] probClass = new double[nClassValue];
+        for(int x=0; x<nClassValue; x++){
+            probClass[x] = 1;
+        }
         
-        double sum;
-        double temp;
         int a=0;
-        int max=0;
-        while(a < n_attrib){
-            sum = 1.0;
+        while(a < nAttribute){ //loop sebanyak atribut yg ada
             int b = 0;
-            int n_val = instnc.numAttributes();
+            int val = (int) instnc.value(a);
             //System.out.println("row "+a);
-            while(b< n_val){
-               // System.out.println("row1 "+b);
-                if(a!=index_class){
-                    System.out.println("String value = " + instnc.stringValue(b));
-                    
-                    
-                    
+            if(a!=classIndex){ //atributnya diitung 
+                while(b< nClassValue){
+                    // System.out.println("row1 "+b);
+                    // System.out.println("String value = " + instnc.stringValue(b));
+                    probClass[b] *= prob[a][val][b];
+
+                    b++;
                 }
-                
-                b++;
             }
             a++;
         }
-        return max;
+        
+        a=0;
+        int indexMax = 0;
+        double max = probClass[indexMax];
+        while(a<nClassValue){
+            if(probClass[a] > max){
+                indexMax = a;
+                max = probClass[indexMax];
+            }
+            a++;
+        }
+        return indexMax;
     }
 
     @Override
     public double[] distributionForInstance(Instance instnc) throws Exception {
-        throw new UnsupportedOperationException("Not supported yet."); //To change body of generated methods, choose Tools | Templates.
+        double[] probClass = new double[nClassValue];
+        for(int x=0; x<nClassValue; x++){
+            probClass[x] = 1;
+        }
+        
+        int a=0;
+        int max=0;
+        while(a < nAttribute){ //loop sebanyak atribut yg ada
+            int b = 0;
+            int val = (int) instnc.value(a);
+            //System.out.println("row "+a);
+            if(a!=classIndex){ //atributnya diitung 
+                while(b< nClassValue){
+                    // System.out.println("row1 "+b);
+                    // System.out.println("String value = " + instnc.stringValue(b));
+                    probClass[b] *= prob[a][val][b];
+
+                    b++;
+                }
+            }
+            a++;
+        }
+        return probClass;
     }
 
     @Override
     public Capabilities getCapabilities() {
-        throw new UnsupportedOperationException("Not supported yet."); //To change body of generated methods, choose Tools | Templates.
+        Capabilities c = new Capabilities((CapabilitiesHandler) this);
+        c.enable(Capabilities.Capability.NOMINAL_ATTRIBUTES);
+        c.enable(Capabilities.Capability.NOMINAL_CLASS);
+        return c;        
     }
     
 }
