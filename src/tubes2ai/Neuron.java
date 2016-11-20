@@ -7,26 +7,26 @@ import java.util.Vector;
 
 class Neuron {
     public Neuron() {
-        inputs = new HashMap<>();
-        outputs = new Vector<>();
+        inputsV = new Vector<>();
+        outputsV = new Vector<>();
+        inputIndexes = new HashMap<>();
         bias = 1;
     }
 
     void calculateOutput() {
         double x = bias;
-        for (Map.Entry<Neuron, Double> entry : inputs.entrySet()) {
-            x += entry.getKey().getOutput() * entry.getValue();
+        for (int i = 0; i < inputNeurons.length; i++) {
+            x += inputNeurons[i].getOutput() * inputWeights[i];
         }
 
         outputValue = sigmoid(x);
     }
 
     void updateWeights(double learningRate) {
-        for (Neuron neuron : inputs.keySet()) {
-            double prevWeight = this.getWeight(neuron);
-            double newWeight = prevWeight + error * neuron.getOutput();
-
-            inputs.put(neuron, newWeight);
+        for (int i = 0; i < inputNeurons.length; i++) {
+            double prevWeight = inputWeights[i];
+            double newWeight = prevWeight + error * inputNeurons[i].getOutput();
+            inputWeights[i] = newWeight;
         }
 
         bias += error;
@@ -34,12 +34,12 @@ class Neuron {
 
     void calculateError() {
         double errsum = 0;
-        for (Neuron output : outputs) {
+        for (int i = 0; i < outputNeurons.length; i++) {
+            Neuron output = outputNeurons[i];
             errsum += output.getWeight(this) * output.getError();
         }
 
         error = errsum * (1 - outputValue) * outputValue;
-
     }
 
     public double getError() {
@@ -47,16 +47,34 @@ class Neuron {
     }
 
     public void initialize(Random random) {
+        int inputCount = inputsV.size();
+        inputNeurons = new Neuron[inputCount];
+        inputWeights = new double[inputCount];
+
+        outputNeurons = new Neuron[outputsV.size()];
+
+        int i = 0;
+        for (Neuron neuron : inputsV) {
+            inputNeurons[i] = neuron;
+            inputIndexes.put(neuron, i);
+            i++;
+        }
+        int j = 0;
+        for (Neuron neuron : outputsV) {
+            outputNeurons[j] = neuron;
+            j++;
+        }
+
+
         reinitializeWeights(random);
     }
 
     private void reinitializeWeights(Random random) {
-        int inputCount = inputs.size();
+        int inputCount = inputNeurons.length;
         double initWeightLimit = 1 / Math.sqrt(inputCount);
-        for (Neuron neuron : inputs.keySet()) {
-            inputs.put(neuron, random.nextDouble()*initWeightLimit*2 - initWeightLimit);
+        for (int i = 0; i < inputCount; i++) {
+            inputWeights[i] = random.nextDouble()*initWeightLimit*2 - initWeightLimit;
         }
-
     }
 
     /* Hanya untuk output */
@@ -74,19 +92,23 @@ class Neuron {
     }
 
     double getWeight(Neuron n) {
-        return inputs.get(n);
+        return inputWeights[inputIndexes.get(n)];
     }
 
     void linkTo(Neuron outDest) {
-        outputs.add(outDest);
-        outDest.inputs.put(this, 0.5);
+        outputsV.add(outDest);
+        outDest.inputsV.add(this);
     }
 
     private double error;
     private double outputValue;
     private double bias;
-    private Map<Neuron, Double> inputs;
-    private Vector<Neuron> outputs;
+    private Map<Neuron, Integer> inputIndexes;
+    private Vector<Neuron> inputsV;
+    private Vector<Neuron> outputsV;
+    private Neuron[] inputNeurons;
+    private Neuron[] outputNeurons;
+    private double[] inputWeights;
 
     private static double sigmoid(double x) {
         return 1 / (1 + Math.exp(-x));
