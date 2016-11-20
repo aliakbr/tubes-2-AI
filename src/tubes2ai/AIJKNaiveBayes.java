@@ -24,7 +24,7 @@ public class AIJKNaiveBayes implements Classifier {
     int n_attrib;
     int index_class;
     private double[][][] prob;
-    
+    int n_value_class;
 
     
     @Override
@@ -37,7 +37,7 @@ public class AIJKNaiveBayes implements Classifier {
         int n_instance = i.numInstances();
         //inisialisasi matrix 3x3;
         //pertama cari ada berapa value di kelas
-        int n_value_class = i.attribute(index_class).numValues();
+        n_value_class = i.attribute(index_class).numValues();
         
         freq = new int[n_attrib][][];
         prob = new double[n_attrib][][];
@@ -82,7 +82,6 @@ public class AIJKNaiveBayes implements Classifier {
             }
             a++;
         }
-
 
         System.out.println("beres inisialisasi 0");
         
@@ -139,7 +138,34 @@ public class AIJKNaiveBayes implements Classifier {
 
     @Override
     public double classifyInstance(Instance instnc) throws Exception {
-        throw new UnsupportedOperationException("Not supported yet."); //To change body of generated methods, choose Tools | Templates.
+        //throw new UnsupportedOperationException("Not supported yet."); //To change body of generated methods, choose Tools | Templates.
+        n_value_class = instnc.attribute(index_class).numValues();
+        String now = "";
+        double[][] prob_class = new double[n_value_class][];
+        
+        double sum;
+        double temp;
+        int a=0;
+        int max=0;
+        while(a < n_attrib){
+            sum = 1.0;
+            int b = 0;
+            int n_val = instnc.numAttributes();
+            //System.out.println("row "+a);
+            while(b< n_val){
+               // System.out.println("row1 "+b);
+                if(a!=index_class){
+                    System.out.println("String value = " + instnc.stringValue(b));
+                    
+                    
+                    
+                }
+                
+                b++;
+            }
+            a++;
+        }
+        return max;
     }
 
     @Override
