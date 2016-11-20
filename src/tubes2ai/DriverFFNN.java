@@ -9,6 +9,7 @@ import weka.filters.MultiFilter;
 import weka.filters.unsupervised.attribute.Normalize;
 import weka.filters.unsupervised.attribute.Standardize;
 
+import java.io.IOException;
 import java.util.Random;
 
 /**
@@ -18,11 +19,20 @@ public class DriverFFNN {
     public static void main(String[] args) {
         ConverterUtils.DataSource source;
 
+        System.out.println("Press enter to start...");
+        try {
+            System.in.read();
+        } catch (IOException e) {
+            throw new RuntimeException(e);
+        }
+        System.out.println("Starting...");
+
         try {
             AIJKFFNN classifier = new AIJKFFNN();
             classifier.setOptions(Utils.splitOptions("-L 1 -N 30"));
-            source = new ConverterUtils.DataSource("data/iris.arff");
+            source = new ConverterUtils.DataSource("data/Team.arff");
             Instances rawData = source.getDataSet();
+            rawData.randomize(new Random(17));
             rawData.setClassIndex(rawData.numAttributes() - 1);
 
             Filter filter = new MultiFilter();
@@ -36,5 +46,13 @@ public class DriverFFNN {
         } catch (Exception e) {
             throw new RuntimeException(e);
         }
+
+        System.out.println("Finished, press enter to exit...");
+        try {
+            System.in.read();
+        } catch (IOException e) {
+            throw new RuntimeException(e);
+        }
+        System.out.println("Exiting...");
     }
 }

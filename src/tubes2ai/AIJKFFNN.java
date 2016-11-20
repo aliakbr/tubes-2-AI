@@ -75,11 +75,6 @@ public class AIJKFFNN implements Classifier, OptionHandler, CapabilitiesHandler,
                     layerInput.get(k).linkTo(eF);
                 }
             }
-
-            for (Neuron neuron : hiddenLayer) {
-                neuron.reinitializeWeights(random);
-            }
-
         }
         /* Jika tidak ada hidden layer */
         else{
@@ -91,8 +86,19 @@ public class AIJKFFNN implements Classifier, OptionHandler, CapabilitiesHandler,
             }
         }
 
+        for (Neuron neuron : layerInput) {
+            neuron.initialize(random);
+        }
+
+        if (nHiddenLayer > 0) {
+            for (Neuron neuron : hiddenLayer) {
+                neuron.initialize(random);
+            }
+
+        }
+
         for (Neuron neuron : layerOutput) {
-            neuron.reinitializeWeights(random);
+            neuron.initialize(random);
         }
 
         /* Learning */

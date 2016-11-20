@@ -46,7 +46,11 @@ class Neuron {
         return error;
     }
 
-    public void reinitializeWeights(Random random) {
+    public void initialize(Random random) {
+        reinitializeWeights(random);
+    }
+
+    private void reinitializeWeights(Random random) {
         int inputCount = inputs.size();
         double initWeightLimit = 1 / Math.sqrt(inputCount);
         for (Neuron neuron : inputs.keySet()) {
