@@ -58,32 +58,23 @@ public class AIJKFFNN implements Classifier, OptionHandler, CapabilitiesHandler,
             layerOutput.add(new Neuron());
         }
 
+        for (int k = 0; k < nInputNeuron; k++) {
+            layerInput.add(new Neuron());
+        }
+
         /* Kalau ada hidden layer */
-        if (nHiddenLayer != 0){
+        if (nHiddenLayer > 0){
             for (int j = 0; j < nHiddenNeuron; j++) {
                 hiddenLayer.add(new Neuron());
-                /* Link ke output */
-                for (Neuron e : layerOutput){
-                    hiddenLayer.get(j).linkTo(e);
-                }
-            }
-
-            for (int k = 0; k < nInputNeuron; k++) {
-                layerInput.add(new Neuron());
-                /* Link ke hidden */
-                for (Neuron eF : hiddenLayer){
-                    layerInput.get(k).linkTo(eF);
-                }
             }
         }
-        /* Jika tidak ada hidden layer */
-        else{
-            for (int l = 0; l < nInputNeuron; l++) {
-                layerInput.add(new Neuron());
-                for (Neuron eL : layerOutput){
-                    layerInput.get(l).linkTo(eL);
-                }
-            }
+
+        /* Link */
+        if (nHiddenLayer > 0) {
+            linkNeurons(layerInput, hiddenLayer);
+            linkNeurons(hiddenLayer, layerOutput);
+        } else {
+            linkNeurons(layerInput, layerOutput);
         }
 
         for (Neuron neuron : layerInput) {
@@ -192,6 +183,14 @@ public class AIJKFFNN implements Classifier, OptionHandler, CapabilitiesHandler,
             nHiddenNeuron = Integer.parseInt(hlnc);
         }
 
+    }
+
+    private void linkNeurons(List<Neuron> from, List<Neuron> to) {
+        for (Neuron neuronSrc : from) {
+            for (Neuron neuronDest : to) {
+                neuronSrc.linkTo(neuronDest);
+            }
+        }
     }
 
     private void loadInput(Instance instance) {
