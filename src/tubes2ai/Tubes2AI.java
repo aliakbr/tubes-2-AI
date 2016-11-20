@@ -23,30 +23,6 @@ public class Tubes2AI {
     /**
      * @param args the command line arguments
      */
-    public static void main(String[] args) {
-        ConverterUtils.DataSource source;
-
-        try {
-            AIJKFFNN classifier = new AIJKFFNN();
-            classifier.setOptions(Utils.splitOptions(""));
-            source = new ConverterUtils.DataSource("data/iris.arff");
-            Instances data = source.getDataSet();
-            data.setClassIndex(data.numAttributes() - 1);
-
-            Evaluation eval10fold = new Evaluation(data);
-            eval10fold.crossValidateModel(
-                classifier,
-                data,
-                10,
-                new Random(1)
-            );
-        } catch (Exception e) {
-            throw new RuntimeException(e);
-        }
-
-
-    }
-    
     public static void main(String[] args) throws Exception {
         // TODO code application logic here
         System.out.println("tes");

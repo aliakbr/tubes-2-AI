@@ -2,6 +2,7 @@ package tubes2ai;
 
 import java.util.HashMap;
 import java.util.Map;
+import java.util.Random;
 import java.util.Vector;
 
 class Neuron {
@@ -27,6 +28,8 @@ class Neuron {
 
             inputs.put(neuron, newWeight);
         }
+
+        bias += error;
     }
 
     void calculateError() {
@@ -41,6 +44,15 @@ class Neuron {
 
     public double getError() {
         return error;
+    }
+
+    public void reinitializeWeights(Random random) {
+        int inputCount = inputs.size();
+        double initWeightLimit = 1 / Math.sqrt(inputCount);
+        for (Neuron neuron : inputs.keySet()) {
+            inputs.put(neuron, random.nextDouble()*initWeightLimit*2 - initWeightLimit);
+        }
+
     }
 
     /* Hanya untuk output */
@@ -63,7 +75,7 @@ class Neuron {
 
     void linkTo(Neuron outDest) {
         outputs.add(outDest);
-        outDest.inputs.put(this, 1.0);
+        outDest.inputs.put(this, 0.5);
     }
 
     private double error;
