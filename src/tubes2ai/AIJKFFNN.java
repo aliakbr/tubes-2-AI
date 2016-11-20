@@ -20,8 +20,6 @@ import java.io.Serializable;
  * @author i
  */
 public class AIJKFFNN implements Classifier, OptionHandler, CapabilitiesHandler, Serializable, Randomizable {
-    private final int MAX_ITERATIONS = 100;
-
     private Vector<Neuron> inputLayer;
     private Vector<Neuron> hiddenLayer;
     private Vector<Neuron> outputLayer;
@@ -29,10 +27,12 @@ public class AIJKFFNN implements Classifier, OptionHandler, CapabilitiesHandler,
     private int nHiddenLayer, nHiddenNeuron;
     private double learningRate;
     private int seed;
+    private int maxIterations;
 
     public AIJKFFNN() {
         nHiddenNeuron = 0;
         nHiddenLayer = 0;
+        maxIterations = 100;
         setSeed(1);
     }
 
@@ -126,7 +126,7 @@ public class AIJKFFNN implements Classifier, OptionHandler, CapabilitiesHandler,
             }
 
             iterations++;
-        } while (iterations < MAX_ITERATIONS);
+        } while (iterations < maxIterations);
 
 
     }
@@ -167,6 +167,7 @@ public class AIJKFFNN implements Classifier, OptionHandler, CapabilitiesHandler,
 
         options.add(new Option("Amount of hidden layers", "L", 1, "-L <amount>"));
         options.add(new Option("Amount of neurons in hidden layer", "N", 1, "-N <amount>"));
+        options.add(new Option("Number of iterations", "I", 1, "-I <amount>"));
 
         return options.elements();
     }
@@ -175,12 +176,17 @@ public class AIJKFFNN implements Classifier, OptionHandler, CapabilitiesHandler,
     public void setOptions(String[] strings) throws Exception {
         String hlc = Utils.getOption("L", strings);
         String hlnc = Utils.getOption("N", strings);
+        String it = Utils.getOption("I", strings);
         if (hlc.length() > 0) {
             nHiddenLayer = Integer.parseInt(hlc);
         }
 
         if (hlnc.length() > 0) {
             nHiddenNeuron = Integer.parseInt(hlnc);
+        }
+
+        if (it.length() > 0) {
+            maxIterations = Integer.parseInt(it);
         }
 
     }
@@ -217,7 +223,11 @@ public class AIJKFFNN implements Classifier, OptionHandler, CapabilitiesHandler,
 
     @Override
     public String[] getOptions() {
-        return new String[]{"-L", String.valueOf(nHiddenLayer), "-N", String.valueOf(nHiddenNeuron)};
+        return new String[]{
+            "-L", String.valueOf(nHiddenLayer),
+            "-N", String.valueOf(nHiddenNeuron),
+            "-I", String.valueOf(maxIterations)
+        };
     }
 
     public static void main(String[] args) {
