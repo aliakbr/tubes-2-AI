@@ -38,7 +38,7 @@ public class DriverFFNN {
 
         try {
             AIJKFFNN classifier = new AIJKFFNN();
-            classifier.setOptions(Utils.splitOptions("-I 1000 -L 1 -N 30"));
+            classifier.setOptions(Utils.splitOptions("-I 1000 -L 1 -N 20"));
             source = new ConverterUtils.DataSource(dataFile);
             Instances rawData = source.getDataSet();
             rawData.randomize(new Random(17));
