@@ -10,8 +10,9 @@ import weka.classifiers.Evaluation;
 import weka.core.Instances;
 import weka.core.Utils;
 import weka.core.converters.ConverterUtils;
-
 import java.util.Random;
+import weka.core.converters.ArffSaver;
+import weka.core.converters.ConverterUtils.DataSource;
 
 /**
  *
@@ -46,4 +47,23 @@ public class Tubes2AI {
 
     }
     
+    public static void main(String[] args) throws Exception {
+        // TODO code application logic here
+        System.out.println("tes");
+
+
+        DataSource source = new DataSource("weather.nominal.arff");
+        Instances dataTrain = source.getDataSet();
+        if (dataTrain.classIndex() == -1)
+           dataTrain.setClassIndex(dataTrain.numAttributes() -1);
+        ArffSaver saver = new ArffSaver();
+
+        dataTrain.setClassIndex(dataTrain.numAttributes()-1);
+
+        AIJKNaiveBayes NB = new AIJKNaiveBayes();
+        NB.buildClassifier(dataTrain);
+
+//        Instances
+//        NB.buildClassifier();
+    }
 }
