@@ -20,19 +20,20 @@ import java.io.Serializable;
  * @author i
  */
 public class AIJKFFNN implements Classifier, OptionHandler, CapabilitiesHandler, Serializable, Randomizable {
-    private final int MAX_ITERATIONS = 100;
-
-    private Vector<Neuron> layerInput;
+    private Vector<Neuron> inputLayer;
     private Vector<Neuron> hiddenLayer;
-    private Vector<Neuron> layerOutput;
-    List<Attribute> listAttribute;
+    private Vector<Neuron> outputLayer;
+    private List<Attribute> attributeList;
     private int nHiddenLayer, nHiddenNeuron;
     private double learningRate;
+    private int seed;
+    private int maxIterations;
 
     public AIJKFFNN() {
         nHiddenNeuron = 0;
         nHiddenLayer = 0;
-        setSeed(0);
+        maxIterations = 100;
+        setSeed(1);
     }
 
     @Override
@@ -43,50 +44,40 @@ public class AIJKFFNN implements Classifier, OptionHandler, CapabilitiesHandler,
         /* Inisialisasi tiap layer */
         nInputNeuron = instances.numAttributes()-1;
         nOutputNeuron = instances.numClasses();
-        layerInput = new Vector<Neuron>(nInputNeuron);
+        inputLayer = new Vector<Neuron>(nInputNeuron);
         hiddenLayer = new Vector<Neuron>(nHiddenNeuron);
-        layerOutput = new Vector<Neuron>(nOutputNeuron);
-        Neuron input, hidden;
+        outputLayer = new Vector<Neuron>(nOutputNeuron);
 
         Random random = new Random(getSeed());
 
         Enumeration<Attribute> attributeEnumeration = instances.enumerateAttributes();
-        listAttribute = Collections.list(attributeEnumeration);
+        attributeList = Collections.list(attributeEnumeration);
 
         /* Mengisi layer dengan neuron-neuron dengan weight default */
         for (int k = 0; k < nOutputNeuron; k++) {
-            layerOutput.add(new Neuron());
+            outputLayer.add(new Neuron());
+        }
+
+        for (int k = 0; k < nInputNeuron; k++) {
+            inputLayer.add(new Neuron());
         }
 
         /* Kalau ada hidden layer */
-        if (nHiddenLayer != 0){
+        if (nHiddenLayer > 0){
             for (int j = 0; j < nHiddenNeuron; j++) {
                 hiddenLayer.add(new Neuron());
-                /* Link ke output */
-                for (Neuron e : layerOutput){
-                    hiddenLayer.get(j).linkTo(e);
-                }
-            }
-
-            for (int k = 0; k < nInputNeuron; k++) {
-                layerInput.add(new Neuron());
-                /* Link ke hidden */
-                for (Neuron eF : hiddenLayer){
-                    layerInput.get(k).linkTo(eF);
-                }
-            }
-        }
-        /* Jika tidak ada hidden layer */
-        else{
-            for (int l = 0; l < nInputNeuron; l++) {
-                layerInput.add(new Neuron());
-                for (Neuron eL : layerOutput){
-                    layerInput.get(l).linkTo(eL);
-                }
             }
         }
 
-        for (Neuron neuron : layerInput) {
+        /* Link */
+        if (nHiddenLayer > 0) {
+            linkNeurons(inputLayer, hiddenLayer);
+            linkNeurons(hiddenLayer, outputLayer);
+        } else {
+            linkNeurons(inputLayer, outputLayer);
+        }
+
+        for (Neuron neuron : inputLayer) {
             neuron.initialize(random);
         }
 
@@ -97,7 +88,7 @@ public class AIJKFFNN implements Classifier, OptionHandler, CapabilitiesHandler,
 
         }
 
-        for (Neuron neuron : layerOutput) {
+        for (Neuron neuron : outputLayer) {
             neuron.initialize(random);
         }
 
@@ -111,12 +102,12 @@ public class AIJKFFNN implements Classifier, OptionHandler, CapabilitiesHandler,
 
             /* Menghitung error dari layer output ke input */
             /* Menyiapkan nilai target */
-                for (int ix = 0; ix < layerOutput.size(); ix++) {
+                for (int ix = 0; ix < outputLayer.size(); ix++) {
                     if (ix == (int)instance.classValue()) {
-                        layerOutput.get(ix).errorFromTarget(1);
+                        outputLayer.get(ix).errorFromTarget(1);
                     }
                     else{
-                        layerOutput.get(ix).errorFromTarget(0);
+                        outputLayer.get(ix).errorFromTarget(0);
                     }
                 }
                 if (nHiddenLayer != 0){
@@ -129,13 +120,13 @@ public class AIJKFFNN implements Classifier, OptionHandler, CapabilitiesHandler,
                 for (Neuron kHid : hiddenLayer){
                     kHid.updateWeights(learningRate);
                 }
-                for (Neuron kOut : layerOutput){
+                for (Neuron kOut : outputLayer){
                     kOut.updateWeights(learningRate);
                 }
             }
 
             iterations++;
-        } while (iterations < MAX_ITERATIONS);
+        } while (iterations < maxIterations);
 
 
     }
@@ -155,9 +146,9 @@ public class AIJKFFNN implements Classifier, OptionHandler, CapabilitiesHandler,
     @Override
     public double[] distributionForInstance(Instance instance) throws Exception {
         loadInput(instance);
-        double[] result = new double[layerOutput.size()];
-        for (int i = 0; i < layerOutput.size(); i++) {
-            result[i] = layerOutput.get(i).getOutput();
+        double[] result = new double[outputLayer.size()];
+        for (int i = 0; i < outputLayer.size(); i++) {
+            result[i] = outputLayer.get(i).getOutput();
         }
         return result;
     }
@@ -176,6 +167,7 @@ public class AIJKFFNN implements Classifier, OptionHandler, CapabilitiesHandler,
 
         options.add(new Option("Amount of hidden layers", "L", 1, "-L <amount>"));
         options.add(new Option("Amount of neurons in hidden layer", "N", 1, "-N <amount>"));
+        options.add(new Option("Number of iterations", "I", 1, "-I <amount>"));
 
         return options.elements();
     }
@@ -184,6 +176,7 @@ public class AIJKFFNN implements Classifier, OptionHandler, CapabilitiesHandler,
     public void setOptions(String[] strings) throws Exception {
         String hlc = Utils.getOption("L", strings);
         String hlnc = Utils.getOption("N", strings);
+        String it = Utils.getOption("I", strings);
         if (hlc.length() > 0) {
             nHiddenLayer = Integer.parseInt(hlc);
         }
@@ -192,12 +185,24 @@ public class AIJKFFNN implements Classifier, OptionHandler, CapabilitiesHandler,
             nHiddenNeuron = Integer.parseInt(hlnc);
         }
 
+        if (it.length() > 0) {
+            maxIterations = Integer.parseInt(it);
+        }
+
+    }
+
+    private void linkNeurons(List<Neuron> from, List<Neuron> to) {
+        for (Neuron neuronSrc : from) {
+            for (Neuron neuronDest : to) {
+                neuronSrc.linkTo(neuronDest);
+            }
+        }
     }
 
     private void loadInput(Instance instance) {
-        for (int m = 0; m < layerInput.size(); m++) {
-            double data = instance.value(listAttribute.get(m));
-            layerInput.get(m).setOutput(data);
+        for (int m = 0; m < inputLayer.size(); m++) {
+            double data = instance.value(attributeList.get(m));
+            inputLayer.get(m).setOutput(data);
         }
 
             /* Menghitung output */
@@ -205,12 +210,12 @@ public class AIJKFFNN implements Classifier, OptionHandler, CapabilitiesHandler,
             for (Neuron eHid : hiddenLayer){
                 eHid.calculateOutput();
             }
-            for (Neuron eOut : layerOutput){
+            for (Neuron eOut : outputLayer){
                 eOut.calculateOutput();
             }
         }
         else{
-            for (Neuron eOut : layerOutput){
+            for (Neuron eOut : outputLayer){
                 eOut.calculateOutput();
             }
         }
@@ -218,7 +223,11 @@ public class AIJKFFNN implements Classifier, OptionHandler, CapabilitiesHandler,
 
     @Override
     public String[] getOptions() {
-        return new String[]{"-L", String.valueOf(nHiddenLayer), "-N", String.valueOf(nHiddenNeuron)};
+        return new String[]{
+            "-L", String.valueOf(nHiddenLayer),
+            "-N", String.valueOf(nHiddenNeuron),
+            "-I", String.valueOf(maxIterations)
+        };
     }
 
     public static void main(String[] args) {
@@ -240,8 +249,6 @@ public class AIJKFFNN implements Classifier, OptionHandler, CapabilitiesHandler,
 
         optionChecker.doTests();
     }
-
-    private int seed;
 
     @Override
     public void setSeed(int i) {
