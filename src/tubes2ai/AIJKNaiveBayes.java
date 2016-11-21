@@ -14,7 +14,7 @@ import weka.core.CapabilitiesHandler;
 
 /**
  *
- * @author i
+ * @author Johan
  */
 public class AIJKNaiveBayes implements Classifier, CapabilitiesHandler {
 
@@ -146,14 +146,16 @@ public class AIJKNaiveBayes implements Classifier, CapabilitiesHandler {
             int b = 0;
             int val = (int) instnc.value(a);
             //System.out.println("row "+a);
-            if(a!=classIndex){ //atributnya diitung 
-                while(b< nClassValue){
-                    // System.out.println("row1 "+b);
-                    // System.out.println("String value = " + instnc.stringValue(b));
+            while(b< nClassValue){
+                // System.out.println("row1 "+b);
+                // System.out.println("String value = " + instnc.stringValue(b));
+                if(a!=classIndex){ //atributnya diitung 
                     probClass[b] *= prob[a][val][b];
-
-                    b++;
                 }
+                else {
+                    probClass[b] *= prob[a][0][b];
+                }
+                b++;
             }
             a++;
         }
@@ -184,15 +186,18 @@ public class AIJKNaiveBayes implements Classifier, CapabilitiesHandler {
             int b = 0;
             int val = (int) instnc.value(a);
             //System.out.println("row "+a);
-            if(a!=classIndex){ //atributnya diitung 
                 while(b< nClassValue){
                     // System.out.println("row1 "+b);
                     // System.out.println("String value = " + instnc.stringValue(b));
-                    probClass[b] *= prob[a][val][b];
-
+                    if(a!=classIndex){ //atributnya diitung 
+                        probClass[b] *= prob[a][val][b];
+                    }
+                    else {
+                        probClass[b] *= prob[a][0][b];
+                    }
                     b++;
                 }
-            }
+            
             a++;
         }
         return probClass;

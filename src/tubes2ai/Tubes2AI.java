@@ -6,6 +6,8 @@
 package tubes2ai;
 
 import weka.classifiers.Classifier;
+import weka.filters.Filter;
+import weka.filters.supervised.attribute.Discretize;
 import weka.classifiers.Evaluation;
 import weka.core.Instances;
 import weka.core.Utils;
@@ -13,6 +15,7 @@ import weka.core.converters.ConverterUtils;
 import java.util.Random;
 import weka.core.converters.ArffSaver;
 import weka.core.converters.ConverterUtils.DataSource;
+import weka.filters.Filter;
 
 /**
  *
@@ -25,9 +28,9 @@ public class Tubes2AI {
      */
     public static void main(String[] args) throws Exception {
         // TODO code application logic here
-        System.out.println("tes");
-
-        DriverNB.run();
+        
+        
+        DriverNB.run("mush.arff");
 /*        DataSource source = new DataSource("weather.nominal.arff");
         Instances dataTrain = source.getDataSet();
         if (dataTrain.classIndex() == -1)
