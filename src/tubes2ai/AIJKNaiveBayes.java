@@ -12,11 +12,13 @@ import weka.core.Instances;
 import weka.core.Attribute;
 import weka.core.CapabilitiesHandler;
 
+import java.io.Serializable;
+
 /**
  *
  * @author Johan
  */
-public class AIJKNaiveBayes implements Classifier, CapabilitiesHandler {
+public class AIJKNaiveBayes implements Classifier, CapabilitiesHandler, Serializable {
 
     private int[][][] freq;
     int nAttribute;
