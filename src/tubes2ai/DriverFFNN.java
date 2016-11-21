@@ -45,7 +45,12 @@ public class DriverFFNN {
             rawData.setClassIndex(rawData.numAttributes() - 1);
 
             Filter filter = new MultiFilter();
-            filter.setOptions(Utils.splitOptions("-F \"weka.filters.unsupervised.attribute.Normalize -S 1.0 -T 0.0\" -F \"weka.filters.unsupervised.attribute.Standardize \""));
+            filter.setOptions(Utils.splitOptions(
+                    "-F \"weka.filters.unsupervised.attribute.ReplaceMissingValues\"" +
+                    "-F \"weka.filters.supervised.attribute.NominalToBinary\"" +
+                    "-F \"weka.filters.unsupervised.attribute.Normalize -S 1.0 -T 0.0\"" +
+                    "-F \"weka.filters.unsupervised.attribute.Standardize \""
+            ));
             filter.setInputFormat(rawData);
             Instances data = Filter.useFilter(rawData, filter);
 
