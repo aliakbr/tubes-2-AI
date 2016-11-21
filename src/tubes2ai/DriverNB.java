@@ -26,7 +26,7 @@ public class DriverNB {
         ConverterUtils.DataSource source = new ConverterUtils.DataSource(data);
         Instances dataTrain = source.getDataSet();
         //if (dataTrain.classIndex() == -1)
-           dataTrain.setClassIndex(4);
+           dataTrain.setClassIndex(0);
         ArffSaver saver = new ArffSaver();
 
 //        dataTrain.setClassIndex();
@@ -40,8 +40,10 @@ public class DriverNB {
         
         Evaluation eval = new Evaluation(dataTrainDisc);
         eval.evaluateModel(NB, dataTrainDisc);
-        System.out.println(eval.toSummaryString());
         
+        System.out.println(eval.toSummaryString());
+        System.out.println(eval.toClassDetailsString());
+        System.out.println(eval.toMatrixString());
         /*Instance inst = new DenseInstance(5);
         
         inst.setDataset(dataTrain);
