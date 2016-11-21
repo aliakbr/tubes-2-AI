@@ -79,6 +79,8 @@ public class MainDriver {
 
             Evaluation evaluation = new Evaluation(filteredData);
 
+            long evalStartTime = System.currentTimeMillis();
+
             if (cvFold <= 0) {
                 classifier.buildClassifier(filteredData);
                 evaluation.evaluateModel(classifier, filteredData);
@@ -86,9 +88,12 @@ public class MainDriver {
                 evaluation.crossValidateModel(classifier, filteredData, cvFold, new Random(1));
             }
 
+            long evalTime = System.currentTimeMillis() - evalStartTime;
+
             System.out.println(evaluation.toSummaryString());
             System.out.println(evaluation.toClassDetailsString());
             System.out.println(evaluation.toMatrixString());
+            System.out.printf("Total time: %d ms%n", evalTime);
 
         } catch (Exception e) {
             throw new RuntimeException(e);
