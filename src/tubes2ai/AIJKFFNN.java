@@ -23,6 +23,9 @@ public class AIJKFFNN implements Classifier, OptionHandler, CapabilitiesHandler,
     private Vector<Neuron> inputLayer;
     private Vector<Neuron> hiddenLayer;
     private Vector<Neuron> outputLayer;
+
+    private Neuron[] outputCalculationArray;
+
     private List<Attribute> attributeList;
     private int nHiddenLayer, nHiddenNeuron;
     private double learningRate;
@@ -80,6 +83,18 @@ public class AIJKFFNN implements Classifier, OptionHandler, CapabilitiesHandler,
         for (Neuron neuron : inputLayer) {
             neuron.initialize(random);
         }
+
+        outputCalculationArray = new Neuron[nHiddenLayer*nHiddenNeuron + nOutputNeuron];
+        int i = 0;
+        for (Neuron neuron : hiddenLayer) {
+            outputCalculationArray[i] = neuron;
+            i++;
+        }
+        for (Neuron neuron : outputLayer) {
+            outputCalculationArray[i] = neuron;
+            i++;
+        }
+
 
         if (nHiddenLayer > 0) {
             for (Neuron neuron : hiddenLayer) {
@@ -206,18 +221,8 @@ public class AIJKFFNN implements Classifier, OptionHandler, CapabilitiesHandler,
         }
 
             /* Menghitung output */
-        if (nHiddenLayer != 0){
-            for (Neuron eHid : hiddenLayer){
-                eHid.calculateOutput();
-            }
-            for (Neuron eOut : outputLayer){
-                eOut.calculateOutput();
-            }
-        }
-        else{
-            for (Neuron eOut : outputLayer){
-                eOut.calculateOutput();
-            }
+        for (int i = 0; i < outputCalculationArray.length; i++) {
+            outputCalculationArray[i].calculateOutput();
         }
     }
 
