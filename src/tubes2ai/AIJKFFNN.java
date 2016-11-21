@@ -24,6 +24,7 @@ public class AIJKFFNN implements Classifier, OptionHandler, CapabilitiesHandler,
     private Vector<Neuron> hiddenLayer;
     private Vector<Neuron> outputLayer;
 
+    private Neuron[] inputLayerArray;
     private Neuron[] outputCalculationArray;
 
     private List<Attribute> attributeList;
@@ -84,15 +85,22 @@ public class AIJKFFNN implements Classifier, OptionHandler, CapabilitiesHandler,
             neuron.initialize(random);
         }
 
-        outputCalculationArray = new Neuron[nHiddenLayer*nHiddenNeuron + nOutputNeuron];
+        inputLayerArray = new Neuron[nInputNeuron];
         int i = 0;
-        for (Neuron neuron : hiddenLayer) {
-            outputCalculationArray[i] = neuron;
+        for (Neuron neuron : inputLayer) {
+            inputLayerArray[i] = neuron;
             i++;
         }
+
+        outputCalculationArray = new Neuron[nHiddenLayer*nHiddenNeuron + nOutputNeuron];
+        int j = 0;
+        for (Neuron neuron : hiddenLayer) {
+            outputCalculationArray[j] = neuron;
+            j++;
+        }
         for (Neuron neuron : outputLayer) {
-            outputCalculationArray[i] = neuron;
-            i++;
+            outputCalculationArray[j] = neuron;
+            j++;
         }
 
 
@@ -132,11 +140,9 @@ public class AIJKFFNN implements Classifier, OptionHandler, CapabilitiesHandler,
                 }
 
             /* Update Weight */
-                for (Neuron kHid : hiddenLayer){
-                    kHid.updateWeights(learningRate);
-                }
-                for (Neuron kOut : outputLayer){
-                    kOut.updateWeights(learningRate);
+
+                for (int k = 0; k < outputCalculationArray.length; k++) {
+                    outputCalculationArray[k].updateWeights(learningRate);
                 }
             }
 
@@ -217,7 +223,7 @@ public class AIJKFFNN implements Classifier, OptionHandler, CapabilitiesHandler,
     private void loadInput(Instance instance) {
         for (int m = 0; m < inputLayer.size(); m++) {
             double data = instance.value(attributeList.get(m));
-            inputLayer.get(m).setOutput(data);
+            inputLayerArray[m].setOutput(data);
         }
 
             /* Menghitung output */
