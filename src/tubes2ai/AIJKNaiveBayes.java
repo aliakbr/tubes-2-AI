@@ -28,6 +28,8 @@ public class AIJKNaiveBayes implements Classifier, CapabilitiesHandler {
     @Override
     public void buildClassifier(Instances i) throws Exception {
 //        throw new UnsupportedOperationException("Not supported yet."); //To change body of generated methods, choose Tools | Templates.
+        getCapabilities().testWithFail(i);
+
         nAttribute = i.numAttributes();
         classIndex = i.classIndex();
         Instance inst;
