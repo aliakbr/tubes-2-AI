@@ -37,6 +37,7 @@ public class AIJKFFNN implements Classifier, OptionHandler, CapabilitiesHandler,
         nHiddenNeuron = 0;
         nHiddenLayer = 0;
         maxIterations = 100;
+        learningRate = 1;
         setSeed(1);
     }
 
@@ -189,6 +190,7 @@ public class AIJKFFNN implements Classifier, OptionHandler, CapabilitiesHandler,
         options.add(new Option("Amount of hidden layers", "L", 1, "-L <amount>"));
         options.add(new Option("Amount of neurons in hidden layer", "N", 1, "-N <amount>"));
         options.add(new Option("Number of iterations", "I", 1, "-I <amount>"));
+        options.add(new Option("Learning rate", "R", 1, "-R <amount>"));
 
         return options.elements();
     }
@@ -198,6 +200,7 @@ public class AIJKFFNN implements Classifier, OptionHandler, CapabilitiesHandler,
         String hlc = Utils.getOption("L", strings);
         String hlnc = Utils.getOption("N", strings);
         String it = Utils.getOption("I", strings);
+        String lr = Utils.getOption("R", strings);
         if (hlc.length() > 0) {
             nHiddenLayer = Integer.parseInt(hlc);
         }
@@ -208,6 +211,10 @@ public class AIJKFFNN implements Classifier, OptionHandler, CapabilitiesHandler,
 
         if (it.length() > 0) {
             maxIterations = Integer.parseInt(it);
+        }
+
+        if (lr.length() > 0) {
+            learningRate = Double.parseDouble(lr);
         }
 
     }
@@ -236,6 +243,7 @@ public class AIJKFFNN implements Classifier, OptionHandler, CapabilitiesHandler,
     public String[] getOptions() {
         return new String[]{
             "-L", String.valueOf(nHiddenLayer),
+            "-R", String.valueOf(learningRate),
             "-N", String.valueOf(nHiddenNeuron),
             "-I", String.valueOf(maxIterations)
         };

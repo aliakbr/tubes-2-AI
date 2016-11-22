@@ -1,11 +1,12 @@
 package tubes2ai;
 
+import java.io.Serializable;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.Random;
 import java.util.Vector;
 
-class Neuron {
+class Neuron implements Serializable {
     public Neuron() {
         inputsV = new Vector<>();
         outputsV = new Vector<>();
@@ -25,7 +26,7 @@ class Neuron {
     void updateWeights(double learningRate) {
         for (int i = 0; i < inputNeurons.length; i++) {
             double prevWeight = inputWeights[i];
-            double newWeight = prevWeight + error * inputNeurons[i].getOutput();
+            double newWeight = prevWeight + learningRate * error * inputNeurons[i].getOutput();
             inputWeights[i] = newWeight;
         }
 

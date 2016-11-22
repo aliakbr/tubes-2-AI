@@ -5,12 +5,14 @@ import com.beust.jcommander.Parameter;
 import weka.classifiers.Classifier;
 import weka.classifiers.Evaluation;
 import weka.core.Instances;
+import weka.core.SerializationHelper;
 import weka.core.Utils;
 import weka.core.converters.ConverterUtils;
 import weka.filters.Filter;
 import weka.filters.MultiFilter;
 import weka.filters.unsupervised.attribute.Discretize;
 
+import java.io.Serializable;
 import java.util.Random;
 
 /**
@@ -22,6 +24,9 @@ public class MainDriver {
 
     @Parameter(names = {"--nb"})
     private boolean useNB = false;
+
+    @Parameter(names = {"--model"})
+    private String modelFilename = "";
 
     @Parameter(names = {"--cross-validate"})
     private Integer cvFold = 0;
@@ -50,6 +55,8 @@ public class MainDriver {
             Classifier classifier;
             Instances filteredData;
 
+            Filter usedFilter = null;
+
             dataTrain.setClassIndex((classIndex != null) ? classIndex : (dataTrain.numAttributes() - 1));
 
             if (useNB) {
@@ -58,6 +65,7 @@ public class MainDriver {
 
                 Discretize discretize = new Discretize();
                 discretize.setInputFormat(dataTrain);
+                usedFilter = discretize;
                 filteredData = Filter.useFilter(dataTrain, discretize);
             } else if (useFFNN) {
                 AIJKFFNN FFNN = new AIJKFFNN();
@@ -72,7 +80,12 @@ public class MainDriver {
                         "-F \"weka.filters.unsupervised.attribute.Standardize \""
                 ));
                 filter.setInputFormat(dataTrain);
+                usedFilter = filter;
                 filteredData = Filter.useFilter(dataTrain, filter);
+            } else if (modelFilename.length() > 0) {
+                CF cf = (CF) SerializationHelper.read(modelFilename);
+                filteredData = Filter.useFilter(dataTrain, cf.f);
+                classifier = cf.c;
             } else {
                 throw new RuntimeException("Need to pick a classification method");
             }
@@ -81,11 +94,21 @@ public class MainDriver {
 
             long evalStartTime = System.currentTimeMillis();
 
-            if (cvFold <= 0) {
-                classifier.buildClassifier(filteredData);
-                evaluation.evaluateModel(classifier, filteredData);
+            if (useFFNN || useNB) {
+                if (cvFold <= 0) {
+                    classifier.buildClassifier(filteredData);
+                    if (modelFilename.length() > 0) {
+                        CF cf = new CF();
+                        cf.c = classifier;
+                        cf.f = usedFilter;
+                        SerializationHelper.write(modelFilename, cf);
+                    }
+                    evaluation.evaluateModel(classifier, filteredData);
+                } else {
+                    evaluation.crossValidateModel(classifier, filteredData, cvFold, new Random(1));
+                }
             } else {
-                evaluation.crossValidateModel(classifier, filteredData, cvFold, new Random(1));
+                evaluation.evaluateModel(classifier, filteredData);
             }
 
             long evalTime = System.currentTimeMillis() - evalStartTime;

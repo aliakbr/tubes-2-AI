@@ -1,0 +1,10 @@
+<component name="ArtifactManager">
+  <artifact type="jar" build-on-make="true" name="AIJK">
+    <output-path>$PROJECT_DIR$/out/artifacts/AIJK</output-path>
+    <root id="archive" name="AIJK.jar">
+      <element id="module-output" name="Tubes2AI" />
+      <element id="library" level="project" name="weka" />
+      <element id="library" level="project" name="com.beust:jcommander:1.58" />
+    </root>
+  </artifact>
+</component>
