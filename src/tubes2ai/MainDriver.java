@@ -64,6 +64,9 @@ public class MainDriver {
             Filter usedFilter = null;
             filteredData1 = null;
             dataTrain.setClassIndex((classIndex != null) ? classIndex : (dataTrain.numAttributes() - 1));
+            if(classIndexRemoved!=null){
+                dataTrain.deleteAttributeAt(classIndexRemoved);
+            }
             /*
             if (classIndexRemoved != null){
                 Filter filterX = new MultiFilter();
@@ -92,8 +95,8 @@ public class MainDriver {
                 }
                 else{
                     filter1.setOptions(Utils.splitOptions(
-                            "-F \"weka.filters.unsupervised.attribute.Discretize\"" +
-                            "-F \"weka.filters.unsupervised.attribute.Remove -R " + classIndexRemoved + "\""
+                            "-F \"weka.filters.unsupervised.attribute.Discretize\""
+                         //   "-F \"weka.filters.unsupervised.attribute.Remove -R " + classIndexRemoved + "\""
                     ));
                 }
                 filter1.setInputFormat(dataTrain);
@@ -118,8 +121,8 @@ public class MainDriver {
                             "-F \"weka.filters.unsupervised.attribute.ReplaceMissingValues\"" +
                             "-F \"weka.filters.supervised.attribute.NominalToBinary\"" +
                             "-F \"weka.filters.unsupervised.attribute.Normalize -S 1.0 -T 0.0\"" +
-                            "-F \"weka.filters.unsupervised.attribute.Standardize \"" +
-                            "-F \"weka.filters.unsupervised.attribute.Remove -R " + classIndexRemoved + "\""
+                            "-F \"weka.filters.unsupervised.attribute.Standardize \""
+                       //     "-F \"weka.filters.unsupervised.attribute.Remove -R " + classIndexRemoved + "\""
                     ));
                 }
                 filter.setInputFormat(dataTrain);
@@ -132,6 +135,7 @@ public class MainDriver {
             } else {
                 throw new RuntimeException("Need to pick a classification method");
             }
+            filteredData.setClass(dataTrain.classAttribute());
             Evaluation evaluation = new Evaluation(filteredData);
 
             long evalStartTime = System.currentTimeMillis();
