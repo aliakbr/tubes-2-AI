@@ -30,6 +30,9 @@ public class MainDriver {
 
     @Parameter(names = {"--cross-validate"})
     private Integer cvFold = 0;
+    
+    @Parameter(names = {"--split-test"})
+    private Integer splitTest = 0;
 
     @Parameter(names = {"-f"}, required = true)
     private String filename;
@@ -134,7 +137,7 @@ public class MainDriver {
             long evalStartTime = System.currentTimeMillis();
 
             if (useFFNN || useNB) {
-                if (cvFold <= 0) {
+                /*if (cvFold <= 0) {
                     classifier.buildClassifier(filteredData);
                     if (modelFilename.length() > 0) {
                         CF cf = new CF();
@@ -145,6 +148,31 @@ public class MainDriver {
                     evaluation.evaluateModel(classifier, filteredData);
                 } else {
                     evaluation.crossValidateModel(classifier, filteredData, cvFold, new Random(1));
+                }*/
+                if (cvFold > 0) {
+                    evaluation.crossValidateModel(classifier, filteredData, cvFold, new Random(1));
+                } else if (splitTest > 0){
+                    int trainSize = (int) Math.round(filteredData.numInstances() * splitTest/100);
+                    int testSize = filteredData.numInstances() - trainSize;
+                    Instances train = new Instances(filteredData, 0, trainSize);
+                    Instances test = new Instances(filteredData, trainSize, testSize);
+                    classifier.buildClassifier(train);
+                    if (modelFilename.length() > 0) {
+                        CF cf = new CF();
+                        cf.c = classifier;
+                        cf.f = usedFilter;
+                        SerializationHelper.write(modelFilename, cf);
+                    }
+                    evaluation.evaluateModel(classifier, test);
+                } else {
+                    classifier.buildClassifier(filteredData);
+                    if (modelFilename.length() > 0) {
+                        CF cf = new CF();
+                        cf.c = classifier;
+                        cf.f = usedFilter;
+                        SerializationHelper.write(modelFilename, cf);
+                    }
+                    evaluation.evaluateModel(classifier, filteredData);
                 }
             } else {
                 evaluation.evaluateModel(classifier, filteredData);

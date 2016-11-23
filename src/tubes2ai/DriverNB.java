@@ -21,7 +21,7 @@ import weka.filters.unsupervised.attribute.Discretize;
  */
 public class DriverNB {
     public static void run(String data) throws Exception{
-        System.out.println("tes driver");
+        //System.out.println("tes driver");
 
         ConverterUtils.DataSource source = new ConverterUtils.DataSource(data);
         Instances dataTrain = source.getDataSet();

@@ -57,7 +57,7 @@ public class AIJKNaiveBayes implements Classifier, CapabilitiesHandler, Serializ
             a++;
         }
 
-        System.out.println("beres buat matriks");
+        //System.out.println("beres buat matriks");
         //inisialisasi matriks sama nilai 0
         a = 0; 
         int b;
@@ -65,17 +65,17 @@ public class AIJKNaiveBayes implements Classifier, CapabilitiesHandler, Serializ
         while(a < nAttribute){ //outlook dkk
             b=0;
             int nValue = i.attribute(a).numValues();
-            System.out.println("row "+a);
+            //System.out.println("row "+a);
             while(b < nValue){
                 c=0;
-                System.out.println("row1 "+b);
+                //System.out.println("row1 "+b);
                 if(a==classIndex){
-                        System.out.println("row2 "+c);
+                        //System.out.println("row2 "+c);
                         freq[a][0][b] = 0;
                 }
                 else {
                     while(c < nClassValue){
-                        System.out.println("row2 "+c);
+                        //System.out.println("row2 "+c);
                         freq[a][b][c] = 0;
                         c++;
                     }
@@ -85,7 +85,7 @@ public class AIJKNaiveBayes implements Classifier, CapabilitiesHandler, Serializ
             a++;
         }
 
-        System.out.println("beres inisialisasi 0");
+        //System.out.println("beres inisialisasi 0");
         
         a = 0;
         int val;
@@ -106,34 +106,34 @@ public class AIJKNaiveBayes implements Classifier, CapabilitiesHandler, Serializ
             }
             a++;
         }       
-        System.out.println("beres frekuensi!!!!");
+        //System.out.println("beres frekuensi!!!!");
 
         a=0;
         while(a < nAttribute){
             b = 0;
             int nValue = i.attribute(a).numValues();
-            System.out.println("row "+a);
+            //System.out.println("row "+a);
             while(b< nValue){
-                System.out.println("row1 "+b);
+                //System.out.println("row1 "+b);
                 if(a!=classIndex){
                     c = 0;
                     while(c < nClassValue){
-                        System.out.println("freq "+freq[a][b][c]);
-                        System.out.println("freq_index "+freq[classIndex][0][c]);
+                        //System.out.println("freq "+freq[a][b][c]);
+                        //System.out.println("freq_index "+freq[classIndex][0][c]);
                         prob[a][b][c] = (double) (freq[a][b][c]) / (double) (freq[classIndex][0][c]);
-                        System.out.println("prob ["+a+"]["+b+"]["+c+"] "+ prob[a][b][c]);
+                        //System.out.println("prob ["+a+"]["+b+"]["+c+"] "+ prob[a][b][c]);
                         c++;
                     }
                 }
                 else {
                     prob[a][0][b] = (double) freq[a][0][b] / i.numInstances();
-                    System.out.println("prob ["+a+"][0]["+b+"] "+ prob[a][0][b]);
+                    //System.out.println("prob ["+a+"][0]["+b+"] "+ prob[a][0][b]);
                 }
                 b++;
             }
             a++;
         }        
-        System.out.println("beres prob!!!!");
+        //System.out.println("beres prob!!!!");
 
     }
 
