@@ -37,6 +37,9 @@ public class MainDriver {
     @Parameter(names = {"--class-index"})
     private Integer classIndex = null;
 
+    @Parameter(names = {"--remove"})
+    private Integer classIndexRemoved = null;
+
     @Parameter(names = {"--options"})
     private String classifierOptions = "";
 
@@ -56,29 +59,53 @@ public class MainDriver {
             Instances filteredData;
 
             Filter usedFilter = null;
-
             dataTrain.setClassIndex((classIndex != null) ? classIndex : (dataTrain.numAttributes() - 1));
 
             if (useNB) {
                 AIJKNaiveBayes NB = new AIJKNaiveBayes();
                 classifier = NB;
-
-                Discretize discretize = new Discretize();
+                /* Discretize discretize = new Discretize();
                 discretize.setInputFormat(dataTrain);
                 usedFilter = discretize;
-                filteredData = Filter.useFilter(dataTrain, discretize);
+                filteredData = Filter.useFilter(dataTrain, discretize);*/
+                Filter filter1 = new MultiFilter();
+                if (classIndexRemoved == null) {
+                    filter1.setOptions(Utils.splitOptions(
+                            "-F \"weka.filters.unsupervised.attribute.Discretize\""
+                    ));
+                }
+                else{
+                    filter1.setOptions(Utils.splitOptions(
+                            "-F \"weka.filters.unsupervised.attribute.Discretize\"" +
+                            "-F \"weka.filters.unsupervised.attribute.Remove -R " + classIndexRemoved + "\""
+                    ));
+                }
+                filter1.setInputFormat(dataTrain);
+                usedFilter = filter1;
+                filteredData = Filter.useFilter(dataTrain, filter1);
             } else if (useFFNN) {
                 AIJKFFNN FFNN = new AIJKFFNN();
                 FFNN.setOptions(Utils.splitOptions(classifierOptions));
                 classifier = FFNN;
 
                 Filter filter = new MultiFilter();
-                filter.setOptions(Utils.splitOptions(
-                        "-F \"weka.filters.unsupervised.attribute.ReplaceMissingValues\"" +
-                        "-F \"weka.filters.supervised.attribute.NominalToBinary\"" +
-                        "-F \"weka.filters.unsupervised.attribute.Normalize -S 1.0 -T 0.0\"" +
-                        "-F \"weka.filters.unsupervised.attribute.Standardize \""
-                ));
+                if (classIndexRemoved == null) {
+                    filter.setOptions(Utils.splitOptions(
+                            "-F \"weka.filters.unsupervised.attribute.ReplaceMissingValues\"" +
+                            "-F \"weka.filters.supervised.attribute.NominalToBinary\"" +
+                            "-F \"weka.filters.unsupervised.attribute.Normalize -S 1.0 -T 0.0\"" +
+                            "-F \"weka.filters.unsupervised.attribute.Standardize \""
+                    ));
+                }
+                else{
+                    filter.setOptions(Utils.splitOptions(
+                            "-F \"weka.filters.unsupervised.attribute.ReplaceMissingValues\"" +
+                            "-F \"weka.filters.supervised.attribute.NominalToBinary\"" +
+                            "-F \"weka.filters.unsupervised.attribute.Normalize -S 1.0 -T 0.0\"" +
+                            "-F \"weka.filters.unsupervised.attribute.Standardize \"" +
+                            "-F \"weka.filters.unsupervised.attribute.Remove -R " + classIndexRemoved + "\""
+                    ));
+                }
                 filter.setInputFormat(dataTrain);
                 usedFilter = filter;
                 filteredData = Filter.useFilter(dataTrain, filter);
