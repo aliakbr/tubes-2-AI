@@ -56,10 +56,23 @@ public class MainDriver {
             Instances dataTrain = source.getDataSet();
             dataTrain.randomize(new Random(1337));
             Classifier classifier;
-            Instances filteredData;
+            Instances filteredData, filteredData1;
 
             Filter usedFilter = null;
+            filteredData1 = null;
             dataTrain.setClassIndex((classIndex != null) ? classIndex : (dataTrain.numAttributes() - 1));
+            /*
+            if (classIndexRemoved != null){
+                Filter filterX = new MultiFilter();
+                filterX.setOptions(Utils.splitOptions(
+                    "-F \"weka.filters.unsupervised.attribute.Remove -R " + classIndexRemoved + "\""
+                ));
+                filterX.setInputFormat(dataTrain);
+                filteredData1 = Filter.useFilter(dataTrain,filterX);
+            }
+            for (int i = 0; i < filteredData1.numAttributes(); i++) {
+                System.out.println(filteredData1.attribute(i).toString());
+            }*/
 
             if (useNB) {
                 AIJKNaiveBayes NB = new AIJKNaiveBayes();
@@ -116,7 +129,6 @@ public class MainDriver {
             } else {
                 throw new RuntimeException("Need to pick a classification method");
             }
-
             Evaluation evaluation = new Evaluation(filteredData);
 
             long evalStartTime = System.currentTimeMillis();
