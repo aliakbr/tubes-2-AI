@@ -148,6 +148,11 @@ public class AIJKFFNN implements Classifier, OptionHandler, CapabilitiesHandler,
             }
 
             iterations++;
+
+            if (iterations % 500 == 0) {
+                System.out.println("FFNN iteration " + iterations);
+            }
+
         } while (iterations < maxIterations);
 
 
