@@ -2,6 +2,7 @@ package tubes2ai;
 
 import com.beust.jcommander.JCommander;
 import com.beust.jcommander.Parameter;
+import com.sun.org.apache.xpath.internal.SourceTree;
 import weka.classifiers.Classifier;
 import weka.classifiers.Evaluation;
 import weka.core.Instances;
@@ -59,12 +60,11 @@ public class MainDriver {
             Instances dataTrain = source.getDataSet();
             dataTrain.randomize(new Random(1337));
             Classifier classifier;
-            Instances filteredData, filteredData1;
-
+            Instances filteredData;
+            System.out.println(modelFilename);
             Filter usedFilter = null;
-            filteredData1 = null;
             dataTrain.setClassIndex((classIndex != null) ? classIndex : (dataTrain.numAttributes() - 1));
-            if(classIndexRemoved!=null){
+            if (classIndexRemoved != null){
                 dataTrain.deleteAttributeAt(classIndexRemoved);
             }
             /*
@@ -122,7 +122,6 @@ public class MainDriver {
                             "-F \"weka.filters.supervised.attribute.NominalToBinary\"" +
                             "-F \"weka.filters.unsupervised.attribute.Normalize -S 1.0 -T 0.0\"" +
                             "-F \"weka.filters.unsupervised.attribute.Standardize \""
-                       //     "-F \"weka.filters.unsupervised.attribute.Remove -R " + classIndexRemoved + "\""
                     ));
                 }
                 filter.setInputFormat(dataTrain);
@@ -135,13 +134,12 @@ public class MainDriver {
             } else {
                 throw new RuntimeException("Need to pick a classification method");
             }
-            filteredData.setClass(dataTrain.classAttribute());
             Evaluation evaluation = new Evaluation(filteredData);
 
             long evalStartTime = System.currentTimeMillis();
 
             if (useFFNN || useNB) {
-                /*if (cvFold <= 0) {
+                if (cvFold <= 0) {
                     classifier.buildClassifier(filteredData);
                     if (modelFilename.length() > 0) {
                         CF cf = new CF();
@@ -152,7 +150,7 @@ public class MainDriver {
                     evaluation.evaluateModel(classifier, filteredData);
                 } else {
                     evaluation.crossValidateModel(classifier, filteredData, cvFold, new Random(1));
-                }*/
+                }
                 if (cvFold > 0) {
                     evaluation.crossValidateModel(classifier, filteredData, cvFold, new Random(1));
                 } else if (splitTest > 0){
