@@ -150,9 +150,23 @@ public class MainDriver {
                     evaluation.evaluateModel(classifier, filteredData);
                 } else {
                     evaluation.crossValidateModel(classifier, filteredData, cvFold, new Random(1));
+                    classifier.buildClassifier(filteredData);
+                    if (modelFilename.length() > 0) {
+                        CF cf = new CF();
+                        cf.c = classifier;
+                        cf.f = usedFilter;
+                        SerializationHelper.write(modelFilename, cf);
+                    }
                 }
                 if (cvFold > 0) {
                     evaluation.crossValidateModel(classifier, filteredData, cvFold, new Random(1));
+                    classifier.buildClassifier(filteredData);
+                    if (modelFilename.length() > 0) {
+                        CF cf = new CF();
+                        cf.c = classifier;
+                        cf.f = usedFilter;
+                        SerializationHelper.write(modelFilename, cf);
+                    }
                 } else if (splitTest > 0){
                     int trainSize = (int) Math.round(filteredData.numInstances() * splitTest/100);
                     int testSize = filteredData.numInstances() - trainSize;
